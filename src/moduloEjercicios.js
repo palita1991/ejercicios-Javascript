@@ -5,7 +5,9 @@ import basededatos from './basededatos.js';
 * Devuelve el promedio de anios de estreno de todas las peliculas de la base de datos.
 */
 export const promedioAnioEstreno = () => {
-    return [];
+    let sumaAnios=0;
+    basededatos.peliculas.map((p) => sumaAnios+=p.anio);
+    return (sumaAnios/basededatos.peliculas.length);
 };
 
 /**
@@ -14,7 +16,17 @@ export const promedioAnioEstreno = () => {
 * @param {number} promedio
   */
 export const pelicuasConCriticaPromedioMayorA = (promedio) => {
-    return [];
+    let peliculasCriticas = [];
+
+    basededatos.peliculas.map((p)=>{
+        let sumaPelicula = 0;
+        let calificaciones = basededatos.calificaciones.filter((c) => c.pelicula === p.id).map(cali => sumaPelicula+=cali.puntuacion);
+
+        if((sumaPelicula/calificaciones.length)>promedio){
+            peliculasCriticas.push(p)
+        }
+    })
+    return peliculasCriticas;
 };
 
 /**
@@ -22,7 +34,15 @@ export const pelicuasConCriticaPromedioMayorA = (promedio) => {
 * @param {string} nombreDirector
 */
 export const peliculasDeUnDirector = (nombreDirector) => {
-    return [];
+    let director = basededatos.directores.find((d) => d.nombre === nombreDirector);
+    let peliculasDirector=[];
+
+    basededatos.peliculas.map((p)=>{
+        if(p.directores.includes(director.id)){
+            peliculasDirector.push(p)
+        }
+    })
+    return peliculasDirector;
 };
 
 /**
@@ -30,7 +50,9 @@ export const peliculasDeUnDirector = (nombreDirector) => {
 * @param {number} peliculaId
 */
 export const promedioDeCriticaBypeliculaId = (peliculaId) => {
-    return [];
+    let suma = 0;
+    let calificaciones = basededatos.calificaciones.filter((c) => {c.pelicula === peliculaId}).map((p) => {suma+=p.puntuacion})
+    return (suma/calificaciones.length);
 };
 
 /**
@@ -66,9 +88,18 @@ export const promedioDeCriticaBypeliculaId = (peliculaId) => {
     ],
  */
 export const obtenerPeliculasConPuntuacionExcelente = () => {
-    // Ejemplo de como accedo a datos dentro de la base de datos
-    // console.log(basededatos.peliculas);
-    return [];
+    let peliculasExcelentes=[];
+
+    basededatos.peliculas.map((p)=>{
+        let sumaPelicula = 0;
+        let calificaciones = basededatos.calificaciones.filter((c) => c.pelicula === p.id).map(cali => sumaPelicula+=cali.puntuacion);
+
+        if((sumaPelicula/calificaciones.length)>=9){
+            peliculasExcelentes.push(p)
+        }
+    })
+
+    return peliculasExcelentes;
 };
 
 /**
@@ -119,5 +150,25 @@ export const obtenerPeliculasConPuntuacionExcelente = () => {
  * @param {string} nombrePelicula
  */
 export const expandirInformacionPelicula = (nombrePelicula) => {
-    return {};
+    let pelicula = basededatos.peliculas.find((p) => p.nombre === nombrePelicula);
+    let directores = [];
+    let generos= [];
+    let criticas= [];
+
+    pelicula.directores.map(d => {
+        directores.push(basededatos.directores.find(director => director.id === d))
+    })
+    
+    pelicula.generos.map(g => {
+        generos.push(basededatos.generos.find(genero => genero.id === g))
+    })
+
+    basededatos.calificaciones.filter(c => c.pelicula === pelicula.id).map(c => {
+        criticas.push(basededatos.criticos.find(critico => critico.id === c.critico))
+    })
+
+    pelicula.directores=directores;
+    pelicula.generos=generos;
+    pelicula.criticas=criticas;
+    return pelicula;
 };
